@@ -6,44 +6,87 @@ import Oso from "./Oso.js";
 import Lobo from "./Lobo.js";
 import Animales from "./consulta.js";
 
-const nombre = document.getElementById('animal').value;
-const edad = document.getElementById('edad').value;
-const comentario = document.getElementById('comentarios').value;
+//Capta elementos DOM
+const animal = document.getElementById('animal');
+const vistaPrevia = document.getElementById('preview');
 
-//Instancias de las clases
+//Evento change para imagen
+animal.addEventListener('change', async()=>{
+    const {animales} = await Animales.getData();
+    const nombreAnimal = animal.value;
+    const animalElegido = animales.find(a => a.name == nombreAnimal);
+    //Imagen
+    const imagenAnimal = animalElegido.imagen;
+    const imagenRuta = `./assets/imgs/${imagenAnimal}`;
+    vistaPrevia.innerHTML = '';
+    vistaPrevia.style.backgroundImage = `url(${imagenRuta})`
+})
 
-const { animales } = await Animales.getData();
-console.log('Data Animales Destructuring');
-console.log(animales);
-const { imagen } = animales.find((a) => a.name == nombre);
-console.log('Destructuring imagen');
-console.log(imagen);
-document.getElementById('preview').style.backgroundImage = `url(./assets/imgs/${imagen})`;
-
-const agregarAnimal = document.getElementById('btnRegistrar');
 //Arreglo animales
 const animalesSalvajes = [];
+//Nuevo animal
 let nuevoAnimal;
-agregarAnimal.addEventListener('click', (evento) => {
-    evento.preventDefault();
-    //Crear nuevo objeto animal
-    nuevoAnimal = new Animal(nombre.value, edad.value, comentario.value, imagen, sonido.value);
 
-    if(nombre.value && edad.value && comentario.value){
-        console.log('Datos nuevo animal');
-        console.log(nuevoAnimal);
-        animalesSalvajes.push(nuevoAnimal);
-        //reloadTable();
-        //Para setear a sus valores iniciales
-        nombre.selectedIndex = 0;
-        edad.selectedIndex = 0;
-        comentario = '';
-        previsualizacion = 'none';
-    } else {
-        alert('Faltan datos por llenar');
+//Capta elementos DOM
+const botonAgregar = document.getElementById('btnRegistrar');
+const edad = document.getElementById('edad');
+const comentarios = document.getElementById('comentarios');;
+const registroAnimales = document.getElementById('Tabla')
+
+//Crear tarjeta Animal 
+botonAgregar.addEventListener('click', async(e) => {
+    e.preventDefault();
+    const imagenAnimalBackground = vistaPrevia.style.backgroundImage;
+    const urlImagenAnimal = imagenAnimalBackground.slice(5, imagenAnimalBackground.length - 2);
+    //Sonido
+    const {animales} = await Animales.getData();
+    const nombreAnimal = animal.value;
+    const animalElegido = animales.find(a => a.name == nombreAnimal);
+    const sonidoAnimal = animalElegido.sound;
+    const sonidoRuta = `./assets/sounds/${sonidoAnimal}`;
+
+    validarCampos(animal, edad, comentarios, urlImagenAnimal);
+    
+    //Crear nuevo objeto animal
+    if(animal.value == 'Aguila'){
+        nuevoAnimal = new Aguila(animal.value, edad.value, urlImagenAnimal, comentarios.value, sonidoRuta);
+    }
+    if(animal.value == 'Leon'){
+        nuevoAnimal = new Leon(animal.value, edad.value, urlImagenAnimal, comentarios.value, sonidoRuta);
+    }
+    if(animal.value == 'Oso'){
+        nuevoAnimal = new Oso(animal.value, edad.value, urlImagenAnimal, comentarios.value, sonidoRuta);
+    }
+    if(animal.value == 'Lobo'){
+        nuevoAnimal = new Lobo(animal.value, edad.value, urlImagenAnimal, comentarios.value, sonidoRuta);
+    }
+    if(animal.value == 'Serpiente'){
+        nuevoAnimal = new Serpiente(animal.value, edad.value, urlImagenAnimal, comentarios.value, sonidoRuta);
     }
 
-});
-    
+    console.log('Mostrar nuevo animal');
+    console.log(nuevoAnimal);
 
+    animalesSalvajes.push(nuevoAnimal)
 
+    console.log('Mostrar arreglo animales');
+    console.log(animalesSalvajes);
+
+    limpiarFormulario(animal, edad, comentarios, imagenAnimalBackground);
+
+})
+
+const validarCampos = (animal, edad, comentarios, urlImagenAnimal) => {
+    if(animal && edad && comentarios && urlImagenAnimal){
+    } else {
+        alert('Faltan datos por completar');
+    }
+}
+
+const limpiarFormulario = (animal, edad, comentarios, imagenAnimalBackground) => {
+    animal.value = "Seleccione un animal"
+    edad.value = "Seleccione un rango de años"
+    comentarios.value = ""
+    const imagenDefecto = document.getElementById('preview')
+    imagenDefecto.style.backgroundImage = 'url("./assets/imgs/lion.svg")'
+}

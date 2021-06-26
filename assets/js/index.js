@@ -1,4 +1,3 @@
-import Animal from "./Animal.js";
 import Aguila from "./Aguila.js";
 import Leon from "./Leon.js";
 import Serpiente from "./Serpiente.js";
@@ -51,7 +50,7 @@ botonAgregar.addEventListener('click', async (e) => {
     console.warn('Mostrar lo que captura sonidoAnimal')
     console.log(sonidoAnimal);
 
-    if(validarCampos(animal, edad, comentarios, urlImagenAnimal)){
+    if (validarCampos(animal, edad, comentarios, urlImagenAnimal)) {
         //Crear nuevo objeto animal
         if (animal.value == 'Aguila') {
             nuevoAnimal = new Aguila(animal.value, edad.value, urlImagenAnimal, comentarios.value, sonidoRuta);
@@ -68,17 +67,18 @@ botonAgregar.addEventListener('click', async (e) => {
         if (animal.value == 'Serpiente') {
             nuevoAnimal = new Serpiente(animal.value, edad.value, urlImagenAnimal, comentarios.value, sonidoRuta);
         }
-        
+
         console.warn('Mostrar nuevo animal');
         console.log(nuevoAnimal);
-
+        //Agregar nuevoAnimal al arreglo
         animalesSalvajes.push(nuevoAnimal)
 
         console.warn('Mostrar arreglo animales');
         console.log(animalesSalvajes);
         //Insertar en Tabla
         imagenPrevia(animalesSalvajes);
-        limpiarFormulario(animal, edad, comentarios, imagenAnimalBackground);
+        limpiarFormulario(animal, edad, comentarios);
+        constriurModal(animalesSalvajes);
 
     } else {
         alert('Faltan datos por completar');
@@ -86,15 +86,17 @@ botonAgregar.addEventListener('click', async (e) => {
 
 })
 
+//Metodo para validar que se completen todos los campos
 const validarCampos = (animal, edad, comentarios, urlImagenAnimal) => {
-    if (animal!='' && edad!='' && comentarios!='' && urlImagenAnimal!='') {
+    if ((animal.value !== "" && animal.value !== 'Seleccione un animal') && (edad.value !== "" && edad.value !== 'Seleccione un rango de años') && comentarios.value !== "" && urlImagenAnimal !== "") {
         return true;
     } else {
         return false;
     }
 }
 
-const limpiarFormulario = (animal, edad, comentarios, imagenAnimalBackground) => {
+//Método para limpiar el formulario una vez creado un animal 
+const limpiarFormulario = (animal, edad, comentarios) => {
     animal.value = "Seleccione un animal"
     edad.value = "Seleccione un rango de años"
     comentarios.value = ""
@@ -102,13 +104,13 @@ const limpiarFormulario = (animal, edad, comentarios, imagenAnimalBackground) =>
     imagenDefecto.style.backgroundImage = 'url("./assets/imgs/lion.svg")'
 }
 
+//Muestra en la tabla de animales la imagen y el sonido del animal creado
 const imagenPrevia = (animalesSalvajes) => {
     registroAnimales.innerHTML = '';
-    animalesSalvajes.forEach(a => {
-        console.log(a.Sonido);
+    animalesSalvajes.forEach((a, p) => {
         registroAnimales.innerHTML += /*html*/ `
         <div class="card bg-warning text-center text-dark my-auto mx-auto h-50">
-            <div class="card-body">
+            <div class="card-body" data-bs-toggle="modal" data-bs-target="#${a.Nombre}-${p}">
             <img style="width: 11rem;" src="${a.Img}" class="card-img" alt="imagen">
             </div>
             <div class="card-footer">
@@ -119,7 +121,35 @@ const imagenPrevia = (animalesSalvajes) => {
     });
 }
 
-window.reproducirSonido = (sonido)=>{
+//Para poder reproducir el sonido
+window.reproducirSonido = (sonido) => {
     const audio = new Audio(sonido);
     audio.play();
 }
+
+//Para costruir el Modal
+const myInput = document.getElementById('myInput')
+const mostrarModal = document.getElementById('modalAnimal')
+const constriurModal = (animalesSalvajes)=>{
+    mostrarModal.innerHTML = '';
+    animalesSalvajes.forEach((m, p)=> {
+    mostrarModal.innerHTML +=
+    `<div id="${m.Nombre}-${p}" class="modal fade">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white w-50">
+                <div class="modal-header">
+                    <img style="width:15rem;" src="${m.Img}" class="card-img" alt="imagen">
+                </div>
+                <div class="modal-body text-center">
+                    <p>${m.Edad}</p>
+                    <p><b>Comentarios:</b></p>
+                </div>
+                <div class="modal-footer text-center">
+                <p>${m.Comentarios}</p>
+                </div>
+            </div>
+        </div>
+    </div>`
+    });
+}
+/*Un comentario de un especialista que tiene una extensión muy larga con la única finalidad de dar prueba a la funcionalidad de la configuración de boostrap en cuanto al estilo del contenedor del modal.*/
